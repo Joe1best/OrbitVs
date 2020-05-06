@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from random import random
-from matplotlib.animation import FuncAnimation
+import matplotlib.animation as an 
 
 
 #G = 6.674*10**(-11)
@@ -68,7 +68,7 @@ class Star:
         self.mass = mass
         self.radius = radius
 
-class system: 
+class System: 
     def __init__(self,planets,star):
         """
         Input: Array of planet specifications (planet)
@@ -77,38 +77,59 @@ class system:
         self.planets = planets
         self.star = star
     
-class plotting:
+class Plotting:
     def __init__(self,starSystem,nsteps,duration):
-        self.fig = plt.figure()
+        #Declaring some variables
         self.ss = starSystem
+
+        #Number of steps in the simulation
         self.nsteps = nsteps
+
+        #How long the simulation lasts
         self.duration = duration
+
+        #Parameters needed to calculate the length of the x and y axis 
+        #for the animations
         par = self.findMaxMin()
+        
+        #Setting the limits 
         self.limits = [min(par[0,:]), min(par[1,:]), max(par[2,:]), max(par[3,:])]
         
-        self.colors = plt.cm.jet(np.linspace(0,1,len(self.ss.planets)))
-        i =0  
-
-        self.animationVar = []
-
+        #Colors for each planet
+        self.colors = plt.cm.rainbow(np.linspace(0,1,len(self.ss.planets)))
+    
+        #Animation stuffs 
+        fig = plt.figure()
+        ax = plt.axes(xlim=(self.limits[0]+0.1*self.limits[0],self.limits[2]+0.1*self.limits[2]),
+                ylim=(self.limits[1]+0.1*self.limits[1],self.limits[3]+0.1*self.limits[3]))
+        #Drawing the outline of the trajectory 
         data = [p.drawOrbit() for p in self.ss.planets]
+
         for (i,p) in zip(range(len(self.ss.planets)),self.ss.planets):
             plt.plot(data[i][0],data[i][1],'--',color = self.colors[i])
-            self.animationVar.append(plt.plot(p.orbit(0)[0],p.orbit(0)[1],'.',markersize=15,color=self.colors[i],label = p.name))
-        plt.legend()
-        self.fig.canvas.draw()
-        j= 0 
-        t = np.linspace(0,self.duration,self.nsteps) 
-        while j< nsteps:
-                for (i,p) in zip(range(len(self.ss.planets)),self.ss.planets):
-                    self.animationVar[i][0].set_xdata(p.orbit(t[j])[0])
-                    self.animationVar[i][0].set_ydata(p.orbit(t[j])[1])
-                self.fig.canvas.draw()
-                plt.pause(0.001)
-                j+=1  
         
+        #Drawing the star
+        plt.plot(0,0,'*',color = 'orange',markeredgecolor='black',markersize=13)
         
+        ptcls = [ax.plot([],[],'.',markersize=10,color=self.colors[_],markeredgecolor='black')[0] for _ in range(len(self.ss.planets))]
+
+        t = np.linspace(0,self.duration,self.nsteps)
     
+        def init():
+            for ptcl in ptcls:
+                ptcl.set_data([], [])
+            return ptcls
+        
+        def animate(i):
+            for (p,ptcl) in zip(self.ss.planets,ptcls): 
+                xdata = p.orbit(t[i])[0] 
+                ydata = p.orbit(t[i])[1] 
+                ptcl.set_data(xdata,ydata)
+            return ptcls
+
+        ani = an.FuncAnimation(fig,animate,init_func = init,interval=15,frames=200,blit=True)
+        ani.save("test.gif",writer="pillow")
+
     def findMaxMin(self):
         limits = np.zeros([4,len(self.ss.planets)])
         i = 0 
@@ -121,10 +142,8 @@ class plotting:
             i+=1
         return limits
 
-
-
 s = Star(1,1)
-plt.ion()
+#plt.ion()
 
 numPlanets = 10
 typeOforbit = ['circular', 'elliptical']
@@ -137,44 +156,8 @@ c = Planet('circular',s,freq2,[2,2],"Planet B")
 d = Planet('circular',s,freq3,[1.4,1.4],"Planet C")
 e = Planet('circular',s,freq4,[5,5],"Planet D")
 
-nsteps = 1000
-duration = 5
-ss = system([b,c,d,e],s)
-plotting(ss,nsteps,duration)
+nsteps = 400
+duration= 1
+ss = System([b,c,d,e],s)
 
-#xdata, ydata = [] , []
-#ln, = plt.plot([],[],'ro')
-
-
-#def update(frame):
-#    xdata.append(b.orbit(frame)[0])
-#    ydata.append(b.orbit(frame)[1])
-#    ln.set_data(xdata,ydata)
-#    return ln,
-
-#def init():
-#    return ln,
-
-#b2 = Planet('elliptical',s,2)
-
-#x=[]
-#y=[]
-#plt.figure()
-
-#x2 = []
-#y2= []
-#t = np.linspace(0,1/2)
-#for time in t:
-#    x.append(b.orbit(time)[0])
-#    y.append(b.orbit(time)[1])
-#    x2.append(c.orbit(time)[0])
-#    y2.append(c.orbit(time)[1])
-#    plt.plot(x[-1],y[-1],".")
-#    plt.plot(x2[-1],y2[-1],".")
-#    plt.show()
-#    plt.pause(1)
-#plt.plot(x,y)	
-#plt.plot(x2,y2)
-#anim = FuncAnimation(fig,update,init_func=init,frames=200,blit=True)
-#anim.save('test.gif', writer='pillow')
-
+Plotting(ss,nsteps,duration)
