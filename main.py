@@ -19,10 +19,11 @@ def vectorBtw(pos1,pos2):
     return [pos2[0]-pos1[0],pos2[1]-pos1[1]]
 
 class Planet:
-    def __init__(self,typeOfOrbit,star,frequency,initCond):
+    def __init__(self,typeOfOrbit,star,frequency,initCond,name):
         self.typeOfOrbit = typeOfOrbit
         self.star = star
         self.frequency = frequency
+        self.name = name
         if (typeOfOrbit == 'circular'):
             self.eccen = 0
         elif (typeOfOrbit == 'elliptical'):
@@ -36,7 +37,7 @@ class Planet:
         accepts circular and elliptical type at the moment. If the orbit is elliptical
         it returns two parameters; the semi-major axis and the semi-minor axis.
         """
-        T = self.frequency
+        T = 1/self.frequency
         if (self.typeOfOrbit == 'circular'):
             return (T**2*G*self.star.mass/4*np.pi**2)**(1/3)
         elif (self.typeOfOrbit == 'elliptical'):
@@ -50,10 +51,10 @@ class Planet:
         if (self.typeOfOrbit == 'circular'):
             return [self.r*np.cos(2*np.pi*self.frequency*t+self.initCond[0]), self.r*np.sin(2*np.pi*self.frequency*t+self.initCond[1])]
         elif (self.typeOfOrbit == 'elliptical'):
-            return [self.r[0]*(1-self.eccen**2)/(1+self.eccen*np.cos(2*np.pi*self.frequency*t))*np.cos(2*np.pi*self.frequency*t+self.initCond[0]),
-                            self.r[0]*(1-self.eccen**2)/(1+self.eccen*np.cos(2*np.pi*self.frequency*t))*np.sin(2*np.pi*self.frequency*t+self.initCond[1])]
+            return [self.r[0]*(1-self.eccen**2)/(1+self.eccen*np.cos(2*np.pi*self.frequency*t+self.initCond[0]))*np.cos(2*np.pi*self.frequency*t+self.initCond[0]),
+                            self.r[0]*(1-self.eccen**2)/(1+self.eccen*np.cos(2*np.pi*self.frequency*t+self.initCond[1]))*np.sin(2*np.pi*self.frequency*t+self.initCond[1])]
     def drawOrbit(self):
-        time = np.linspace(0,1/self.frequency)
+        time = np.linspace(0,1/self.frequency,300)
         xdata, ydata = [], []
         for t in time: 
             xdata.append(self.orbit(t)[0])
@@ -77,11 +78,11 @@ class system:
         self.star = star
     
 class plotting:
-    def __init__(self,starSystem,nsteps):
+    def __init__(self,starSystem,nsteps,duration):
         self.fig = plt.figure()
         self.ss = starSystem
         self.nsteps = nsteps
-
+        self.duration = duration
         par = self.findMaxMin()
         self.limits = [min(par[0,:]), min(par[1,:]), max(par[2,:]), max(par[3,:])]
         
@@ -92,19 +93,20 @@ class plotting:
 
         data = [p.drawOrbit() for p in self.ss.planets]
         for (i,p) in zip(range(len(self.ss.planets)),self.ss.planets):
-            plt.plot(data[i][0],data[i][1],'--',self.colors[i])
-            self.animationVar.append(plt.plot(p.orbit(0)[0],p.orbit(0)[1],'.',markersize=15,color=self.colors[i])[0])
-        
+            plt.plot(data[i][0],data[i][1],'--',color = self.colors[i])
+            self.animationVar.append(plt.plot(p.orbit(0)[0],p.orbit(0)[1],'.',markersize=15,color=self.colors[i],label = p.name))
+        plt.legend()
         self.fig.canvas.draw()
-        j=1
-
+        j= 0 
+        t = np.linspace(0,self.duration,self.nsteps) 
         while j< nsteps:
                 for (i,p) in zip(range(len(self.ss.planets)),self.ss.planets):
-                    self.animationVar[i].set_xdata(p.orbit(1/(p.frequency*nsteps)*j)[0])
-                    self.animationVar[i].set_ydata(p.orbit(1/(p.frequency*nsteps)*j)[1])
+                    self.animationVar[i][0].set_xdata(p.orbit(t[j])[0])
+                    self.animationVar[i][0].set_ydata(p.orbit(t[j])[1])
                 self.fig.canvas.draw()
                 plt.pause(0.001)
                 j+=1  
+        
         
     
     def findMaxMin(self):
@@ -127,14 +129,18 @@ plt.ion()
 numPlanets = 10
 typeOforbit = ['circular', 'elliptical']
 freq1 = 2
-freq2 = 1
+freq2 = 5
+freq3 = 4
+freq4 = 30
+b = Planet('elliptical',s,freq1,[0,0],"Planet A")
+c = Planet('circular',s,freq2,[2,2],"Planet B")
+d = Planet('circular',s,freq3,[1.4,1.4],"Planet C")
+e = Planet('circular',s,freq4,[5,5],"Planet D")
 
-b = Planet('circular',s,freq1,[0,0])
-c = Planet('elliptical',s,freq2,[3,3])
-
-nsteps = 400
-ss = system([b,c],s)
-plotting(ss,nsteps)
+nsteps = 1000
+duration = 5
+ss = system([b,c,d,e],s)
+plotting(ss,nsteps,duration)
 
 #xdata, ydata = [] , []
 #ln, = plt.plot([],[],'ro')
@@ -161,8 +167,8 @@ plotting(ss,nsteps)
 #for time in t:
 #    x.append(b.orbit(time)[0])
 #    y.append(b.orbit(time)[1])
-#    x2.append(b2.orbit(time)[0])
-#    y2.append(b2.orbit(time)[1])
+#    x2.append(c.orbit(time)[0])
+#    y2.append(c.orbit(time)[1])
 #    plt.plot(x[-1],y[-1],".")
 #    plt.plot(x2[-1],y2[-1],".")
 #    plt.show()
