@@ -78,7 +78,7 @@ class System:
         self.star = star
     
 class Plotting:
-    def __init__(self,starSystem,nsteps,duration):
+    def __init__(self,starSystem,nsteps,duration,connectingPlanets = None):
         #Declaring some variables
         self.ss = starSystem
 
@@ -111,7 +111,7 @@ class Plotting:
         #Drawing the star
         plt.plot(0,0,'*',color = 'orange',markeredgecolor='black',markersize=13)
         
-        ptcls = [ax.plot([],[],'.',markersize=10,color=self.colors[_],markeredgecolor='black')[0] for _ in range(len(self.ss.planets))]
+        ptcls = [ax.plot([],[],'.',markersize=10,color=self.colors[_],markeredgecolor='black',zorder=10)[0] for _ in range(len(self.ss.planets))]
 
         t = np.linspace(0,self.duration,self.nsteps)
     
@@ -121,13 +121,37 @@ class Plotting:
             return ptcls
         
         def animate(i):
+            #Updates the figure with the new points for each planet
             for (p,ptcl) in zip(self.ss.planets,ptcls): 
                 xdata = p.orbit(t[i])[0] 
                 ydata = p.orbit(t[i])[1] 
                 ptcl.set_data(xdata,ydata)
-            return ptcls
 
-        ani = an.FuncAnimation(fig,animate,init_func = init,interval=15,frames=200,blit=True)
+            if (connectingPlanets != None):
+                #gets all the current data on the graph 
+                data = np.zeros([len(self.ss.planets),2])
+                for (i,ptcl) in zip(range(len(self.ss.planets)),ptcls):
+                    data[i][0] = ptcl.get_xdata()
+                    data[i][1] = ptcl.get_ydata()
+
+                #Figures out which index the planets that we want to connect are in 
+                #the data array 
+                index = []
+                for i in range(len(self.ss.planets)):
+                    if (self.ss.planets[i]==connectingPlanets[0] or self.ss.planets[i] == connectingPlanets[1]):
+                        index.append(i)
+
+                #Gives us the line equation parameters
+                a,b = self.connectTwoPlanets(data[index[0]],data[index[1]],t[i])
+                
+                minx = min([data[index[0]][0],data[index[1]][0]])
+                maxx = max([data[index[0]][0],data[index[1]][0]])
+                x = np.linspace(minx,maxx,100,endpoint=True)
+                plt.plot(x,a*x+b,'-',color='black')
+            
+
+            return ptcls
+        ani = an.FuncAnimation(fig,animate,init_func = init,interval=5,frames=self.nsteps,blit=True)
         ani.save("test.gif",writer="pillow")
 
     def findMaxMin(self):
@@ -141,6 +165,19 @@ class Plotting:
             limits[3][i] = max(y)
             i+=1
         return limits
+    
+    def connectTwoPlanets(self,p1,p2,t):
+        """
+        Function that will draw a line between two given planet coordinates p1 and p2 at time t
+        returns the parameters (a,b) in the line equation ax+b that passes through both points
+        """
+
+        a = (p2[1]-p1[1])/(p2[0]-p1[0])
+        b = p2[1]- a*p2[0]
+        return a,b
+
+
+
 
 s = Star(1,1)
 #plt.ion()
@@ -149,15 +186,15 @@ numPlanets = 10
 typeOforbit = ['circular', 'elliptical']
 freq1 = 2
 freq2 = 5
-freq3 = 4
+freq3 = 7
 freq4 = 30
-b = Planet('elliptical',s,freq1,[0,0],"Planet A")
+#b = Planet('elliptical',s,freq1,[0,0],"Planet A")
 c = Planet('circular',s,freq2,[2,2],"Planet B")
 d = Planet('circular',s,freq3,[1.4,1.4],"Planet C")
 e = Planet('circular',s,freq4,[5,5],"Planet D")
 
-nsteps = 400
-duration= 1
-ss = System([b,c,d,e],s)
+nsteps = 600
+duration= 3
+ss = System([c,d,e],s)
 
-Plotting(ss,nsteps,duration)
+Plotting(ss,nsteps,duration,connectingPlanets=[d,c])
