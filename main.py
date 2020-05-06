@@ -19,7 +19,7 @@ def vectorBtw(pos1,pos2):
     return [pos2[0]-pos1[0],pos2[1]-pos1[1]]
 
 class Planet:
-    def __init__(self,typeOfOrbit,star,frequency,initCond,name,eccen=None):
+    def __init__(self,typeOfOrbit,star,frequency,initCond,name):
         self.typeOfOrbit = typeOfOrbit
         self.star = star
         self.frequency = frequency
@@ -27,10 +27,7 @@ class Planet:
         if (typeOfOrbit == 'circular'):
             self.eccen = 0
         elif (typeOfOrbit == 'elliptical'):
-            if (eccen==None):
-                self.eccen = random()
-            else: 
-                self.eccen = eccen
+            self.eccen = random()
         self.r = self.findR()
         self.initCond = initCond
     
@@ -81,7 +78,7 @@ class System:
         self.star = star
     
 class Plotting:
-    def __init__(self,starSystem,nsteps,duration,connectingPlanets = None,saveFile = None):
+    def __init__(self,starSystem,nsteps,duration,connectingPlanets = None):
         #Declaring some variables
         self.ss = starSystem
 
@@ -102,30 +99,19 @@ class Plotting:
         self.colors = plt.cm.rainbow(np.linspace(0,1,len(self.ss.planets)))
     
         #Animation stuffs 
-        fig = plt.figure(figsize=(20,15))
+        fig = plt.figure()
         ax = plt.axes(xlim=(self.limits[0]+0.1*self.limits[0],self.limits[2]+0.1*self.limits[2]),
                 ylim=(self.limits[1]+0.1*self.limits[1],self.limits[3]+0.1*self.limits[3]))
-        
-        #Hiding the axes
-        ax.axes.xaxis.set_visible(False)
-        ax.axes.yaxis.set_visible(False)
-
         #Drawing the outline of the trajectory 
         data = [p.drawOrbit() for p in self.ss.planets]
+
         for (i,p) in zip(range(len(self.ss.planets)),self.ss.planets):
             plt.plot(data[i][0],data[i][1],'--',color = self.colors[i])
         
         #Drawing the star
         plt.plot(0,0,'*',color = 'orange',markeredgecolor='black',markersize=13)
         
-        #Title depending on the purpose of the plot
-        if (connectingPlanets==None):
-            plt.title("Random Solar System",fontsize=25)
-        else:
-            plt.title(connectingPlanets[0].name+ " and "+connectingPlanets[1].name+" orbit",fontsize=25)
-        
-        #The object in our plot that will be animated
-        ptcls = [ax.plot([],[],'.',markersize=20,color=self.colors[_],markeredgecolor='black',zorder=10)[0] for _ in range(len(self.ss.planets))]
+        ptcls = [ax.plot([],[],'.',markersize=10,color=self.colors[_],markeredgecolor='black',zorder=10)[0] for _ in range(len(self.ss.planets))]
 
         t = np.linspace(0,self.duration,self.nsteps)
     
@@ -165,21 +151,8 @@ class Plotting:
             
 
             return ptcls
-        #Runs the animation with animate() and init() 
         ani = an.FuncAnimation(fig,animate,init_func = init,interval=5,frames=self.nsteps,blit=True)
-        
-        #If we do not want to save, just show the animation
-        if (saveFile!=None):
-            #Saves the animation
-            ani.save(save+".gif",writer="pillow")
-
-            #Saves the last snapshot of the figure
-            fig.savefig(save+".svg", format='svg', dpi=1200)
-            fig.savefig(save+".png", format='png', dpi=1200)
-
-            plt.close()
-        else:
-            plt.show()
+        ani.save("test.gif",writer="pillow")
 
     def findMaxMin(self):
         limits = np.zeros([4,len(self.ss.planets)])
@@ -202,41 +175,26 @@ class Plotting:
         a = (p2[1]-p1[1])/(p2[0]-p1[0])
         b = p2[1]- a*p2[0]
         return a,b
-    
-    
+
+
+
 
 s = Star(1,1)
 #plt.ion()
 
 numPlanets = 10
 typeOforbit = ['circular', 'elliptical']
-#Frequencies of planets relative to Earth (which is 1)
-freq1 = 4.15   #Mercury
-freq2 = 1.62   #Venus
-freq3 = 1      #Earth
-freq4 = 0.53   #Mars
+freq1 = 2
+freq2 = 5
+freq3 = 7
+freq4 = 30
+#b = Planet('elliptical',s,freq1,[0,0],"Planet A")
+c = Planet('circular',s,freq2,[2,2],"Planet B")
+d = Planet('circular',s,freq3,[1.4,1.4],"Planet C")
+e = Planet('circular',s,freq4,[5,5],"Planet D")
 
-#Eccentricity values were googled and inputted here. 
-a = Planet('circular',s,freq1,[0,0],"Mercury",eccen=0.206)
-b = Planet('circular',s,freq2,[0,0],"Venus",eccen=0.007)
-c = Planet('circular',s,freq3,[0,0],"Earth",eccen = 0.017)
-#d = Planet('circular',s,freq4,[0,0],"Mars",eccen = 0.093)
+nsteps = 600
+duration= 3
+ss = System([c,d,e],s)
 
-#Mars duration
-#Resolution; the more, the longer it takes! 
-#nsteps = 1100
-
-#Duration of the simulation
-#duration= 17
-
-#Venus duration
-#nsteps = 1100
-#duration = 15
-
-#Mercury duration
-nsteps = 1100
-duration = 7
-
-ss = System([a,b,c],s)
-save = "Earth-Mercury"
-Plotting(ss,nsteps,duration,connectingPlanets=[c,a],saveFile=save)
+Plotting(ss,nsteps,duration,connectingPlanets=[d,c])
