@@ -166,7 +166,7 @@ class Plotting:
             
 
             return ptcls
-        ani = an.FuncAnimation(fig,animate,init_func = init,interval=50,frames=self.nsteps,blit=True)
+        ani = an.FuncAnimation(fig,animate,init_func = init,interval=1,frames=nsteps,blit=True)
          #If we do not want to save, just show the animation
         if (saveFile!=None):
             #Saves the animation
@@ -215,13 +215,15 @@ freq1 = 4.15   #Mercury
 freq2 = 1.62   #Venus
 freq3 = 1      #Earth
 freq4 = 0.53   #Mars
-
+freq5 = 0.084  #Jupiter
+freq6 = 0.0344 #Saturn
 #Eccentricity values were googled and inputted here. 
-a = Planet('circular',s,freq1,[0,0],"Mercury",eccen=0.206)
-b = Planet('circular',s,freq2,[0,0],"Venus",eccen=0.007)
-c = Planet('circular',s,freq3,[0,0],"Earth",eccen = 0.017)
-#d = Planet('circular',s,freq4,[0,0],"Mars",eccen = 0.093)
-
+a = Planet(typeOforbit[1],s,freq1,[0,0],"Mercury",eccen=0.206)
+b = Planet(typeOforbit[1],s,freq2,[0,0],"Venus",eccen=0.007)
+c = Planet(typeOforbit[1],s,freq3,[0,0],"Earth",eccen = 0.017)
+d = Planet(typeOforbit[1],s,freq4,[0,0],"Mars",eccen = 0.093)
+e = Planet(typeOforbit[1],s,freq5,[0,0],"Jupiter",eccen = 0.0484)
+f = Planet(typeOforbit[1],s,freq6,[0,0],"Saturn",eccen = 0.054)
 #Mars duration
 #Resolution; the more, the longer it takes! 
 #nsteps = 1100
@@ -234,9 +236,17 @@ c = Planet('circular',s,freq3,[0,0],"Earth",eccen = 0.017)
 #duration = 15
 
 #Mercury duration
-nsteps = 1100
-duration = 7
+#nsteps = 1100
+#duration = 7
 
-ss = System([a,b,c],s)
-save = "Earth-Mercury"
-Plotting(ss,nsteps,duration,connectingPlanets=[c,a],saveFile=save)
+#Jupiter duration
+#nsteps = 1100
+#duration = 24
+
+#Saturn duration
+nsteps = 600
+duration = 30
+
+ss = System([a,b,c,d,e,f],s)
+save = "Saturn-Jupiter"
+Plotting(ss,nsteps,duration,connectingPlanets=[e,f],saveFile=save)
