@@ -79,8 +79,9 @@ class Plotting:
                 ptcl.set_data([], [])
             return ptcls
         
-        #Will save all the data in there
-        data = np.zeros([len(connectingPlanets),2])
+        if (connectingPlanets!=None):
+            #Will save all the data in there
+            data = np.zeros([len(connectingPlanets),2])
 
         def animate(i):
             #Updates the figure with the new points for each planet
@@ -114,15 +115,19 @@ class Plotting:
         
         ani = an.FuncAnimation(fig,animate,init_func = init,interval=1,frames=nsteps,blit=True)
         
-        #If we do not want to save, just show the animation
+        #If we do not want to save, just show the animation. If we do not want to save, we can just look 
+        #at the animation
         if (saveFile):
             
             #Saves the animation
-            save = connectingPlanets[0].name + "-" + connectingPlanets[1].name
-            ani.save(save+".gif",writer="pillow")
-            
-            #Saves the last snapshot of the figure as an svg 
-            fig.savefig(save+".svg", format='svg', dpi=1200)
+            if (connectingPlanets==None):
+                ani.save("Random Star System.gif",writer="pillow")
+            else:
+                save = connectingPlanets[0].name + "-" + connectingPlanets[1].name
+                ani.save(save+".gif",writer="pillow")
+                
+                #Saves the last snapshot of the figure as an svg 
+                fig.savefig(save+".svg", format='svg', dpi=1200)
             plt.close()
         else:
             plt.show()
@@ -161,7 +166,7 @@ ss = st.System([planet1,planet2],star1)
 
 nsteps = 150
 duration = 1/0.25
-Plotting(ss,nsteps,duration,connectingPlanets=[planet1,planet2])
+Plotting(ss,nsteps,duration)
 
 #Mars duration
 #Resolution; the more, the longer it takes! 
