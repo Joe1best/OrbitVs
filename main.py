@@ -5,8 +5,6 @@ import matplotlib.animation as an
 import starSystems as st
 import sys 
 
-#G = 6.674*10**(-11)
-G = 1
 def magnitude(v1):
     """
     Calculates the magnitude of v1 (vector)
@@ -20,13 +18,14 @@ def vectorBtw(pos1,pos2):
     return [pos2[0]-pos1[0],pos2[1]-pos1[1]]
     
 class Plotting:
-    def __init__(self,starSystem,nsteps,duration,connectingPlanets = None,saveFile=True,animationSave= False,ignorePlanet=None):
+    def __init__(self,starSystem,nsteps,duration,connectingPlanets = None,saveFile=True,ignorePlanet=None):
         #Declaring some variables
         self.ss = starSystem
         
         #Ignoring the planets that we want to ignore in the animation 
         newPlanets = self.ss.planets.copy()
-        [newPlanets.remove(ignorePlanet[i]) for i in range(len(ignorePlanet))]
+        if (ignorePlanet!=None):
+            [newPlanets.remove(ignorePlanet[i]) for i in range(len(ignorePlanet))]
         
         #Number of steps in the simulation
         self.nsteps = nsteps
@@ -151,6 +150,19 @@ class Plotting:
         return a,b
 
 
+#########
+#Simulation example
+#########
+star1 = st.Star(1,1,'S')
+typeOfOrbit = 'circular'
+planet1 = st.Planet(typeOfOrbit,star1,0.25,[0,0],'A')
+planet2 = st.Planet(typeOfOrbit,star1,0.75,[0,0],'B')
+ss = st.System([planet1,planet2],star1)
+
+nsteps = 150
+duration = 1/0.25
+Plotting(ss,nsteps,duration,connectingPlanets=[planet1,planet2])
+
 #Mars duration
 #Resolution; the more, the longer it takes! 
 #nsteps = 1100
@@ -174,7 +186,7 @@ class Plotting:
 #nsteps = 600
 #duration = 30
 
-ss = st.System(name='solar system')
-planets = ss.planets
+#ss = st.System(name='solar system')
+#planets = ss.planets
 
-Plotting(ss,nsteps,duration,connectingPlanets=[planets[2],planets[4]],ignorePlanet=[planets[4],planets[5],planets[6],planets[7]])
+#Plotting(ss,nsteps,duration,connectingPlanets=[planets[2],planets[4]],ignorePlanet=[planets[4],planets[5],planets[6],planets[7]])
