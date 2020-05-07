@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from random import random
 import matplotlib.animation as an 
 import starSystems as st
+import sys 
 
 #G = 6.674*10**(-11)
 G = 1
@@ -116,11 +117,11 @@ class Plotting:
         
         #If we do not want to save, just show the animation
         if (saveFile):
+            
             #Saves the animation
             save = connectingPlanets[0].name + "-" + connectingPlanets[1].name
-            if (animationSave):
-                ani.save(save+".gif",writer="pillow")
-
+            ani.save(save+".gif",writer="pillow")
+            
             #Saves the last snapshot of the figure as an svg 
             fig.savefig(save+".svg", format='svg', dpi=1200)
             plt.close()
@@ -166,8 +167,8 @@ class Plotting:
 #duration = 7
 
 #Jupiter duration
-nsteps = 1100
-duration = 24
+#nsteps = 1100
+#duration = 24
 
 #Saturn duration
 #nsteps = 600
@@ -176,4 +177,4 @@ duration = 24
 ss = st.System(name='solar system')
 planets = ss.planets
 
-Plotting(ss,nsteps,duration,connectingPlanets=[planets[2],planets[4]],ignorePlanet=[planets[4],planets[5],planets[6],planets[7]],animationSave=True)
+Plotting(ss,nsteps,duration,connectingPlanets=[planets[2],planets[4]],ignorePlanet=[planets[4],planets[5],planets[6],planets[7]])
