@@ -158,15 +158,15 @@ class Plotting:
 #########
 #Simulation example
 #########
-star1 = st.Star(1,1,'S')
-typeOfOrbit = 'circular'
-planet1 = st.Planet(typeOfOrbit,star1,0.25,[0,0],'A')
-planet2 = st.Planet(typeOfOrbit,star1,0.75,[0,0],'B')
-ss = st.System([planet1,planet2],star1)
+#star1 = st.Star(1,1,'S')
+#typeOfOrbit = 'circular'
+#planet1 = st.Planet(typeOfOrbit,star1,0.25,[0,0],'A')
+#planet2 = st.Planet(typeOfOrbit,star1,0.75,[0,0],'B')
+#ss = st.System([planet1,planet2],star1)
 
-nsteps = 150
-duration = 1/0.25
-Plotting(ss,nsteps,duration)
+nsteps = 650
+duration = 10
+#Plotting(ss,nsteps,duration)
 
 #Mars duration
 #Resolution; the more, the longer it takes! 
@@ -191,7 +191,7 @@ Plotting(ss,nsteps,duration)
 #nsteps = 600
 #duration = 30
 
-#ss = st.System(name='solar system')
-#planets = ss.planets
+ss = st.System(name='HD 158259')
+planets = ss.planets
 
-#Plotting(ss,nsteps,duration,connectingPlanets=[planets[2],planets[4]],ignorePlanet=[planets[4],planets[5],planets[6],planets[7]])
+Plotting(ss,nsteps,duration,connectingPlanets=[planets[1],planets[3]])

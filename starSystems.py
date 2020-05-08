@@ -80,7 +80,16 @@ class System:
             eccen = [0.206,0.007,0.017,0.093,0.048,0.056,0.047,0.009,0.248]
             #Eccentricity values were googled and inputted here. 
             self.planets = [Planet('elliptical',self.star,freq[i],[0,0],names[i],eccen=eccen[i]) for i in range(self.numPlanets)]
-    
+        elif (name=='HD 158259'):
+            #Dont really work in units here, so the sun is going to have a radius 1 and mass 1 
+            self.star = Star(1,1,'HD 158259')
+            self.numPlanets = 5
+            #Frequencies of planets relative to HD 158259 d (which is 1)
+            freq = [2.3636,1.5294,1,0.65,0.43333]   
+            names = ['HD 158259 b', 'HD 158259 c', 'HD 158259 d', 'HD 158259 e', 'HD 158259 f']
+            #Eccentricity values were googled and inputted here. 
+            self.planets = [Planet('circular',self.star,freq[i],[0,0],names[i]) for i in range(self.numPlanets)]
+
     def __str__(self):  
         """
         String method used when printing each system. This will print it in the form of 
